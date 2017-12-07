@@ -4,44 +4,35 @@
 ; continue doing untill new_appx == old_appx
 
 .model small
-
 .stack 100h
-
 .data
-    stid dw 0464H 
-
 .code
-    start:
+    main:
 
         mov ax, @data
         mov ds, ax ; set ds to be a pointer to data segment
-        
-    sqrt:
-        mov bx, 01h
+
+        stid equ 464h
+        mov bx, 1 ; bx is the old apprx, set it to 1
         
     sqrtloop:
+        mov dx, 0
+        mov ax, stid ; keep N in ax
+        div bx ; (N/old_appx)
+        add ax, bx ; (old_appx + (N/old_appx))
+        shr ax, 1 ; divide by 2
         
-        mov dx, bx ; dx becomes the old apprx
-        mov cx, stid ; keep N in cx
-        
-        mov ax, cx
-        div bx ; divide N by old_appx
-        mov cx, ax
-        
-        add bx, cx ; (old_appx + (N/old_appx))
-        
-        mov ax, bx
-        mov cx, 02h
-        div cx ; (old_appx + (N/old_appx))/2
-        mov bx, ax
-        
-        cmp dx, bx ; compare old appx with new appx
-        je result ; if equal go to result
-        jmp sqrtloop ; else loop again
+        ;cmp dx, bx ; compare old appx with new appx
+        ;je result ; if equal go to result
+        ;jmp sqrtloop ; else loop again
 
     result:
+
+        mov dx, ax
         mov ah, 02h
-        mov dx, bx
         int 21h
+
+        mov ah, 4ch	; setup to terminate program and
+        int 21h	; return to the DOC prompt
         
-        end start
+        end main
