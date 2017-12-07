@@ -6,6 +6,9 @@
 .model small
 .stack 100h
 .data
+    new_appx dw ?
+    sqrt_result dw ?
+
 .code
     main:
 
@@ -16,19 +19,27 @@
         mov bx, 1       ; bx is the old apprx, set it to 1
         
     sqrtloop:
-        mov dx, 0       ; reset the remainder
         mov ax, stid    ; keep N in ax
+
+        mov dx, 0       ; reset the remainder
         div bx          ; (N/old_appx)
         add ax, bx      ; (old_appx + (N/old_appx))
         shr ax, 1       ; divide by 2
-        
-        ;cmp dx, bx ; compare old appx with new appx
-        ;je result ; if equal go to result
-        ;jmp sqrtloop ; else loop again
+        mov new_appx, ax
+        xchg ax, bx
+        sub new_appx, ax
+        jns positive
+        neg new_appx
+
+    positive:
+        cmp new_appx, 0
+        ja sqrtloop
+        mov sqrt_result, bx
+
 
     result:
 
-        mov dx, ax
+        mov dx, sqrt_result
         mov ah, 02h
         int 21h
 
