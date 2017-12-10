@@ -36,7 +36,7 @@
         not bl              ; invert bits for the not part of nand
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
         
-        mov al, bl          ; copy answer into return value register
+        mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
 
     _nor:
@@ -50,7 +50,7 @@
         not bl              ; invert bits for the not part of nor
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
         
-        mov al, bl          ; copy answer into return value register
+        mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
 
     main:
@@ -65,12 +65,11 @@
         mov ax, sqrt_result ; keep the value in al
         call _nor           ; call custom nor
 
-
         jmp result          ; print the result
 
     result:
 
-        mov dl, al
+        mov dl, ah
         add dx, 30h
         mov ah, 02h
         int 21h
