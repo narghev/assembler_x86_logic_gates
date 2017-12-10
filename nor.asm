@@ -10,7 +10,7 @@
         and cl, 00000010b   ; mask off all bits except input bit 1
         shr cl, 1           ; move bit 1 value into bit 0 of CL register
         
-        and bl, cl          ; AND these two registers, result in BL
+        or bl, cl          ; AND these two registers, result in BL
         not bl              ; invert bits for the not part of nand
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
         
