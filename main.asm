@@ -39,6 +39,20 @@
         mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
 
+      _nor:
+        mov bl, al          ; copy of input bits into BL
+        mov cl, al          ; and another in CL
+        and bl, 00000001b   ; mask off all bits except input bit 0
+        and cl, 00000010b   ; mask off all bits except input bit 1
+        shr cl, 1           ; move bit 1 value into bit 0 of CL register
+        
+        or bl, cl           ; OR these two registers, result in BL
+        not bl              ; invert bits for the not part of nor
+        and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
+        
+        mov ah, bl          ; copy answer into return value register
+        ret                 ; uncomment for subroutine
+
     main:
 
         mov ax, @data
@@ -49,7 +63,7 @@
 
         call sqrtloop       ; calculate sqrt_result
         mov ax, sqrt_result ; keep the value in al
-        call _nand          ; call custom nand
+        call _nor           ; call custom nor
 
         jmp result          ; print the result
 
