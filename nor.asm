@@ -3,7 +3,7 @@
 .data
 .code
 
-    nor:
+    _nor:
         mov bl, al          ; copy of input bits into BL
         mov cl, al          ; and another in CL
         and bl, 00000001b   ; mask off all bits except input bit 0
