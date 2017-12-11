@@ -5,6 +5,21 @@
     sqrt_result dw ?
 
 .code   
+
+    main:
+
+        mov ax, @data
+        mov ds, ax          ; set ds to be a pointer to data segment
+
+        stid equ 464h
+        mov bx, 1           ; bx is the old apprx, set it to 1
+
+        call sqrtloop       ; calculate sqrt_result
+        mov ax, sqrt_result ; keep the value in al
+        call _nor           ; call custom nor
+
+        jmp result          ; print the result
+
     sqrtloop:
         mov ax, stid        ; keep N in ax
 
@@ -52,20 +67,6 @@
         
         mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
-
-    main:
-
-        mov ax, @data
-        mov ds, ax          ; set ds to be a pointer to data segment
-
-        stid equ 464h
-        mov bx, 1           ; bx is the old apprx, set it to 1
-
-        call sqrtloop       ; calculate sqrt_result
-        mov ax, sqrt_result ; keep the value in al
-        call _nor           ; call custom nor
-
-        jmp result          ; print the result
 
     result:
 
