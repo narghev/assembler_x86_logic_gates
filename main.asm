@@ -20,42 +20,42 @@
         call _nor           ; call custom nor
         call back_up        ; save the result
         shr al, 2           ; remove the bits that are used in _nor
-        mov bl, al
+        mov bl, al          ; bl is used in back_up, the beginning value is al
+        and bl, 00000001b   ; keep only the first bit of the value
+        call back_up        ; save
+        and al, 11111110b   ; remove the first bit
+        mov bl, al          ; we need this bit twice
+        shr bl, 1           ; put it in first bit
         and bl, 00000001b
-        call back_up
-        and al, 11111110b
-        mov bl, al
-        shr bl, 1
-        and bl, 00000001b
-        or al, bl
+        or al, bl           ; al = al + bl
         call _nand
         call back_up
-        shr al, 2
+        shr al, 2           ; remove already used bits
         call _xor
         call back_up
-        shr al, 2
+        shr al, 2           ; remove already used bits
         call _nand
-        call back_up
-
+        call back_up        ; done with the first step
 
         mov al, bh
-        mov bh, 00000000b
+        mov bh, 00000000b   ; prepare the back up register
         call _xor
-        and al, 11111110b
-        or al, ah
+        and al, 11111110b   ; remove already used bits
+        or al, ah           ; add the result
         call _not
         call back_up
-        shr al, 1
+        shr al, 1           ; remove already used bits
         mov bl, al
-        and bl, 00000001b
+        and bl, 00000001b   ; prepare fot the next step
         call back_up
-        shr al, 1
+        shr al, 1           ; remove already used bits
         mov bl, al
         and bl, 00000001b
         call back_up
         shr al, 1
         call _nand
-        call back_up
+        call back_up        ; done with the second step
+
         mov al, bh
         call _or
         shr al, 2
@@ -65,7 +65,7 @@
         shr al, 2
         shl al, 1
         or al, ah
-        call _nand
+        call _nand          ; done with the last step, the result is in ah
 
         jmp result          ; print the result
     
@@ -106,7 +106,7 @@
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
         
         mov ah, bl          ; copy answer into return value register
-        ret                 ; uncomment for subroutine
+        ret                 ; return
 
     _nor:
         mov bl, al          ; copy of input bits into BL
@@ -120,11 +120,11 @@
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one 
         
         mov ah, bl          ; copy answer into return value register
-        ret                 ; uncomment for subroutine
+        ret                 ; return
 
     _or:
-        mov bl, al           ; copy of input bits into BL
-        mov cl, al           ; and another in CL
+        mov bl, al          ; copy of input bits into BL
+        mov cl, al          ; and another in CL
 
         and bl, 00000001b   ; mask off all bits except input bit 0
         and cl, 00000010b   ; mask off all bits except input bit 1
@@ -134,29 +134,29 @@
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
 
         mov ah, bl          ; copy answer into return value register
-        ret                 ; uncomment for subroutine
+        ret                 ; return
 
     _xor:
-        mov bl, al           ; copy of input bits into BL
-        mov cl, al           ; and another in CL
+        mov bl, al          ; copy of input bits into BL
+        mov cl, al          ; and another in CL
         and bl, 00000001b   ; mask off all bits except input bit 0
         and cl, 00000010b   ; mask off all bits except input bit 1
-        shr cl, 1            ; move bit 1 value into bit 0 of CL register
+        shr cl, 1           ; move bit 1 value into bit 0 of CL register
                             ; now we have the binary value of each bit in BL and CL, in bit 0 location
-        xor bl, cl           ; AND these two registers, result in BL
+        xor bl, cl          ; AND these two registers, result in BL
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
 
         mov ah, bl          ; copy answer into return value register
-        ret                 ; uncomment for subroutine
+        ret                 ; return
     
     _not:
-        mov bl, al           ; copy of input bits into BL
+        mov bl, al          ; copy of input bits into BL
         and bl, 00000001b   ; mask off all bits except input bit 0
         not bl
         and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
 
         mov ah, bl          ; copy answer into return value register
-        ret                 ; uncomment for subroutine
+        ret                 ; return
 
     result:
         mov dl, ah
