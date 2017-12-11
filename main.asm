@@ -2,7 +2,7 @@
 .stack 100h
 .data
     new_appx dw ?
-    sqrt_result dw ?
+    sqrt_result db ?
 
 .code   
 
@@ -15,7 +15,7 @@
         mov bx, 1           ; bx is the old apprx, set it to 1
 
         call sqrtloop       ; calculate sqrt_result
-        mov ax, sqrt_result ; keep the value in al
+        mov al, sqrt_result ; keep the value in al
         call _nor           ; call custom nor
 
         jmp result          ; print the result
@@ -37,7 +37,7 @@
     positive:
         cmp new_appx, 0     ; cpm new - old with 0
         ja sqrtloop         ; if new - old == 0, loop again
-        mov sqrt_result, bx ; keep the result
+        mov sqrt_result, bl ; keep the result
         ret                 ; return
 
     _nand:
