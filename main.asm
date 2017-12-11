@@ -15,10 +15,64 @@
 
         call sqrtloop       ; calculate sqrt_result
         mov al, sqrt_result ; keep the value in al
+
+        mov bh, 00000000b   ; prepare backup register
         call _nor           ; call custom nor
-        call _nand          ; call custom nand
+        call back_up        ; save the result
+        shr al, 2           ; remove the bits that are used in _nor
+        mov bl, al
+        and bl, 00000001b
+        call back_up
+        and al, 11111110b
+        mov bl, al
+        shr bl, 1
+        and bl, 00000001b
+        or al, bl
+        call _nand
+        call back_up
+        shr al, 2
+        call _xor
+        call back_up
+        shr al, 2
+        call _nand
+        call back_up
+
+
+        mov al, bh
+        mov bh, 00000000b
+        call _xor
+        and al, 11111110b
+        or al, ah
+        call _not
+        call back_up
+        shr al, 1
+        mov bl, al
+        and bl, 00000001b
+        call back_up
+        shr al, 1
+        mov bl, al
+        and bl, 00000001b
+        call back_up
+        shr al, 1
+        call _nand
+        call back_up
+        mov al, bh
+        call _or
+        shr al, 2
+        shl al, 1
+        or al, ah
+        call _nand
+        shr al, 2
+        shl al, 1
+        or al, ah
+        call _nand
 
         jmp result          ; print the result
+    
+    back_up:
+        shl bh, 1           ; shift left
+        or bh, bl           ; add the new result to the backed up result
+        ret
 
     sqrtloop:
         mov ax, stid        ; keep N in ax
@@ -68,11 +122,41 @@
         mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
 
-    prep_for_next_gate:
-        mov al, sqrt_result ; keep result in al
-        shr al, 1           ; get rid of already used bit
-        and al, 11111110b   ; make the last bit 0
-        add al, ah          ; add the result of the previous gate to the number
+    _or:
+        mov bl, al           ; copy of input bits into BL
+        mov cl, al           ; and another in CL
+
+        and bl, 00000001b   ; mask off all bits except input bit 0
+        and cl, 00000010b   ; mask off all bits except input bit 1
+        
+        shr cl,1            ; move bit 1 value into bit 0 of CL register
+        or bl, cl           ; AND these two registers, result in BL
+        and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
+
+        mov ah, bl          ; copy answer into return value register
+        ret                 ; uncomment for subroutine
+
+    _xor:
+        mov bl, al           ; copy of input bits into BL
+        mov cl, al           ; and another in CL
+        and bl, 00000001b   ; mask off all bits except input bit 0
+        and cl, 00000010b   ; mask off all bits except input bit 1
+        shr cl, 1            ; move bit 1 value into bit 0 of CL register
+                            ; now we have the binary value of each bit in BL and CL, in bit 0 location
+        xor bl, cl           ; AND these two registers, result in BL
+        and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
+
+        mov ah, bl          ; copy answer into return value register
+        ret                 ; uncomment for subroutine
+    
+    _not:
+        mov bl, al           ; copy of input bits into BL
+        and bl, 00000001b   ; mask off all bits except input bit 0
+        not bl
+        and bl, 00000001b   ; clear all upper bits positions leaving bit 0 either a zero or one
+
+        mov ah, bl          ; copy answer into return value register
+        ret                 ; uncomment for subroutine
 
     result:
         mov dl, ah
