@@ -7,7 +7,6 @@
 .code   
 
     main:
-
         mov ax, @data
         mov ds, ax          ; set ds to be a pointer to data segment
 
@@ -17,6 +16,7 @@
         call sqrtloop       ; calculate sqrt_result
         mov al, sqrt_result ; keep the value in al
         call _nor           ; call custom nor
+        call _nand          ; call custom nand
 
         jmp result          ; print the result
 
@@ -68,8 +68,13 @@
         mov ah, bl          ; copy answer into return value register
         ret                 ; uncomment for subroutine
 
-    result:
+    prep_for_next_gate:
+        mov al, sqrt_result ; keep result in al
+        shr al, 1           ; get rid of already used bit
+        and al, 11111110b   ; make the last bit 0
+        add al, ah          ; add the result of the previous gate to the number
 
+    result:
         mov dl, ah
         add dx, 30h
         mov ah, 02h
